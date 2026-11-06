@@ -3,16 +3,6 @@ import json
 import boto3
 import requests
 from datetime import datetime
-from dotenv import load_dotenv
-
-# 1. Charger les variables d'environnement (le fichier .env avec tes clés AWS)
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    # Sur GitHub Actions, dotenv n'est pas installé car les variables 
-    # sont directement injectées par les GitHub Secrets. On ignore l'erreur.
-    pass
 
 # --- CONFIGURATION ---
 BUCKET_NAME = "data-portfolio-velib-jerom" #Nom de ton bucket S3 (base de données dans le cloud AWS)

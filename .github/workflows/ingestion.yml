@@ -1,0 +1,31 @@
+name: Pipeline Ingestion Bronze
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Tous les jours à minuit
+  workflow_dispatch: # Permet le lancement manuel
+
+jobs:
+  ingest_data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v3
+
+      - name: Installation des dépendances
+        run: pip install boto3 requests python-dotenv
+
+      - name: Installation de Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Installation des dépendances
+        run: pip install boto3 requests pandas
+
+      - name: Exécution du script d'ingestion API -> AWS S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        # Remplace 'ton_script_ingestion.py' par le vrai nom de ton fichier
+        run: python ton_script_ingestion.py

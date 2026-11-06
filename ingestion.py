@@ -6,7 +6,13 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 # 1. Charger les variables d'environnement (le fichier .env avec tes clés AWS)
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # Sur GitHub Actions, dotenv n'est pas installé car les variables 
+    # sont directement injectées par les GitHub Secrets. On ignore l'erreur.
+    pass
 
 # --- CONFIGURATION ---
 BUCKET_NAME = "data-portfolio-velib-jerom" #Nom de ton bucket S3 (base de données dans le cloud AWS)
@@ -16,11 +22,15 @@ VELIB_API_URL = "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/vel
 METEO_API_URL = "https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true"
 
 # 2. Initialiser le client AWS S3
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-    region_name=os.getenv("AWS_DEFAULT_REGION")
+access_key = os.environ.get("AWS_ACCESS_KEY_ID")
+secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+bucket_name = "data-portfolio-velib-jerom"
+
+s3 = boto3.client(
+    "s3",
+    region_name="eu-north-1",
+    aws_access_key_id=access_key,
+    aws_secret_access_key=secret_key
 )
 
 def fetch_data(url):
@@ -51,7 +61,7 @@ def upload_to_s3(data, folder_name, file_prefix):
     
     # Envoyer sur AWS S3
     print(f"Upload en cours vers s3://{BUCKET_NAME}/{s3_key} ...")
-    s3_client.put_object(
+    s3.put_object(
         Bucket=BUCKET_NAME,
         Key=s3_key,
         Body=json_data
